@@ -7,7 +7,6 @@ SWEP.AdminOnly = false
 
 SWEP.Primary.ClipSize = 20
 SWEP.Primary.DefaultClip = 3000
-SWEP.Primary.Automatic = true
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -31,16 +30,25 @@ local shotDamage = 50
 local shotRof = 0.5
 local shotCount = 1
 local shotSpread = 0.07
+local shotAuto = true
 
 CreateClientConVar( "cweapon_damage", shotDamage, true, true )
 CreateClientConVar( "cweapon_count", shotCount, true, true )
 CreateClientConVar( "cweapon_spread", shotSpread, true, true )
 CreateClientConVar( "cweapon_rof", shotRof, true, true )
+CreateClientConVar( "cweapon_auto", 1, true, true )
 
 function SWEP:PrimaryAttack()
+	if ( self:GetOwner():GetInfoNum( "cweapon_auto", 1 ) == 0 ) then
+		self.Primary.Automatic = false
+	else
+		self.Primary.Automatic = true
+	end
+		
 	-- For now we're using the built in ShootBullet() function.
-	self.Weapon:SetNextPrimaryFire( CurTime() + GetConVarNumber( "cweapon_rof" ) )
-	self:ShootBullet( GetConVarNumber( "cweapon_damage" ), GetConVarNumber( "cweapon_count" ), GetConVarNumber( "cweapon_spread" ) )
+	self.Weapon:SetNextPrimaryFire( CurTime() + self:GetOwner():GetInfoNum( "cweapon_rof", 1 ) )
+	self.Weapon:EmitSound( "Weapon_Pistol.Single" )
+	self:ShootBullet( self:GetOwner():GetInfoNum( "cweapon_damage", 1 ), self:GetOwner():GetInfoNum( "cweapon_count", 1 ), self:GetOwner():GetInfoNum( "cweapon_spread", 1 ) )
 	
 	-- We'll use CustomShoots() when it's more refined.
 	--CustomShoots(self)
